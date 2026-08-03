@@ -4,101 +4,101 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Justin Eskridge</title>
-<meta name="description" content="Projects and writing by Justin Eskridge.">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<style>
-:root {
-  --accent: #E4572E;
-  --ink: #14161a;
-  --body: #2c3038;
-  --muted: #6b7280;
-  --faint: #9aa1ab;
-  --paper: #fbfaf8;
-  --card: #ffffff;
-  --rule: #e3e0da;
-  --serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', serif;
-  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --accent: #ff7a4d; --ink: #f2f0ec; --body: #cdc9c2; --muted: #9b958c;
-    --faint: #746e66; --paper: #131417; --card: #1a1c20; --rule: #2c2f35;
-  }
-}
-* { box-sizing: border-box; }
-body {
-  margin: 0; min-height: 100vh; background: var(--paper); color: var(--body);
-  font-family: var(--serif); font-size: 1.0625rem; line-height: 1.65;
-  -webkit-font-smoothing: antialiased;
-  display: flex; flex-direction: column;
-}
-.wrap { width: 100%; max-width: 42rem; margin: 0 auto; padding: 0 1.5rem; }
-header { padding: 5rem 0 2.5rem; }
-h1 {
-  font-family: var(--serif); font-weight: 400; letter-spacing: -.025em;
-  font-size: clamp(2.2rem, 6vw, 3.2rem); color: var(--ink); margin: 0 0 .75rem;
-}
-h1 em { font-style: italic; color: var(--accent); }
-.lede { font-size: 1.1rem; color: var(--muted); margin: 0; max-width: 32rem; }
-h2 {
-  font-family: var(--sans); font-size: .74rem; font-weight: 700; letter-spacing: .13em;
-  text-transform: uppercase; color: var(--faint); margin: 0 0 1rem;
-}
-main { flex: 1; padding-bottom: 4rem; }
-.projects { display: grid; gap: .75rem; }
-.project {
-  display: block; padding: 1.35rem 1.5rem; border-radius: 12px; text-decoration: none;
-  background: var(--card); border: 1px solid var(--rule); color: var(--body);
-  transition: transform .14s ease, box-shadow .14s ease, border-color .14s ease;
-}
-.project:hover {
-  transform: translateY(-2px); border-color: var(--faint);
-  box-shadow: 0 2px 4px rgba(20,22,26,.06), 0 18px 40px -20px rgba(20,22,26,.35);
-}
-.project h3 {
-  font-family: var(--sans); font-size: 1.05rem; font-weight: 650; color: var(--ink);
-  margin: 0 0 .3rem; letter-spacing: -.01em;
-}
-.project p { margin: 0; font-size: .95rem; color: var(--muted); }
-.project .tag {
-  display: inline-block; margin-top: .7rem; font-family: var(--sans); font-size: .72rem;
-  font-weight: 650; letter-spacing: .06em; text-transform: uppercase; color: var(--accent);
-}
-footer {
-  padding: 2rem 0 3rem; border-top: 1px solid var(--rule);
-  font-family: var(--sans); font-size: .85rem; color: var(--faint);
-}
-footer a { color: var(--muted); }
-</style>
+<meta name="description" content="The work of Justin Eskridge — electrical engineering, nature and tech photography, light installations, music, and drumming.">
+<meta property="og:title" content="Justin Eskridge">
+<meta property="og:description" content="The work of Justin Eskridge — electrical engineering, nature and tech photography, light installations, music, and drumming.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/assets/style.css">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 </head>
 <body>
-<header>
-  <div class="wrap">
-    <h1>Justin <em>Eskridge</em></h1>
-    <p class="lede">Writing and projects, published here as they become worth reading.</p>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="bar">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true"></span>Justin&nbsp;Eskridge</a>
+    <button class="nav-toggle" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="site-nav"><a href="/" class='active'>Home</a><a href="/electrical-engineering/">Electrical Engineering</a><a href="/nature-photography/">Nature Photography</a><a href="/tech-photography/">Tech Photography</a><a href="/light-projects/">Light Projects</a><a href="/music-projects/">Music Projects</a><a href="/drumming/">Drumming</a>
+      <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
+    </nav>
   </div>
 </header>
+<main id="main">
 
-<main>
-  <div class="wrap">
-    <h2>Projects</h2>
-    <div class="projects">
-
-      <a class="project" href="/contact-improv-book/">
-        <h3>The Rolling Point of Contact</h3>
-        <p>A facilitator's guidebook and games manual for contact improvisation —
-           nine chapters and 58 runnable games for leading sessions of 2 to 10 people.</p>
-        <span class="tag">Read the book →</span>
-      </a>
-
-    </div>
+<section class="hero">
+  <div class="hero-inner">
+    <h1>Justin <em>Eskridge</em></h1>
+    <p class="lede">The work of Justin Eskridge — electrical engineering, nature and tech photography, light installations, music, and drumming.</p>
   </div>
-</main>
+</section>
+<div class="wrap">
 
-<footer>
-  <div class="wrap">
-    <p>© Justin Eskridge · <a href="https://github.com/AxisDigitalArchive">GitHub</a></p>
+    <section class="group">
+      <h2 class="group-title">Engineering</h2>
+      <div class="tile-grid">
+        <a class="tile" href="/electrical-engineering/">
+          <h3>Electrical Engineering</h3>
+          <p>Contract design, prototypes, and things I build to find out whether they can be built.</p>
+          <span class="tile-go">View →</span>
+        </a></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title">Photography</h2>
+      <div class="tile-grid">
+        <a class="tile" href="/nature-photography/">
+          <h3>Nature Photography</h3>
+          <p>The world outside, slowed down.</p>
+          <span class="tile-go">View →</span>
+        </a>
+        <a class="tile" href="/tech-photography/">
+          <h3>Tech Photography</h3>
+          <p>Circuits, machines, and the quiet geometry of made things.</p>
+          <span class="tile-go">View →</span>
+        </a></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title">Light & Sound</h2>
+      <div class="tile-grid">
+        <a class="tile" href="/light-projects/">
+          <h3>Light Projects</h3>
+          <p>LED art and installations — the controllers, the code, and the glow.</p>
+          <span class="tile-go">View →</span>
+        </a>
+        <a class="tile" href="/music-projects/">
+          <h3>Music Projects</h3>
+          <p>Recordings, instruments, and sound experiments.</p>
+          <span class="tile-go">View →</span>
+        </a>
+        <a class="tile" href="/drumming/">
+          <h3>Drumming</h3>
+          <p>Rhythm, kit, and hands.</p>
+          <span class="tile-go">View →</span>
+        </a></div>
+    </section>
+    <section class="group">
+      <h2 class="group-title">Writing</h2>
+      <div class="tile-grid">
+        <a class="tile" href="/contact-improv-book/">
+          <h3>The Rolling Point of Contact</h3>
+          <p>A facilitator's guidebook & games manual for Contact Improvisation.</p>
+          <span class="tile-go">View →</span>
+        </a></div>
+    </section>
+</div>
+
+</main>
+<footer class="site-footer" id="contact">
+  <div class="foot-inner">
+    <p class="foot-title">Justin Eskridge</p>
+    <p class="foot-sub">Engineering, photography, and things that glow and go bang.</p>
+    
+    <nav class="foot-nav">
+      <a href="/contact-improv-book/">The Rolling Point of Contact</a>
+      <a href="https://github.com/AxisDigitalArchive">GitHub</a>
+    </nav>
   </div>
 </footer>
+<script src="/assets/site.js" defer></script>
 </body>
 </html>
