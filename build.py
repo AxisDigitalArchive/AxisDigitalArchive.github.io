@@ -48,6 +48,19 @@ IMG_BASE = "/media"
 
 IMAGE_EXTS = (".jpg", ".jpeg", ".png", ".webp", ".avif", ".gif")
 
+# Web derivatives. Originals dropped into media/<slug>/ are optimised into
+# media/<slug>/web/ : a full view for the lightbox and a smaller grid thumbnail.
+# EXIF (including GPS location) is stripped; orientation is baked in.
+FULL_MAX = 2048     # long edge, px — the lightbox version
+THUMB_MAX = 800     # long edge, px — the gallery grid tile
+JPEG_QUALITY = 82
+
+try:
+    from PIL import Image, ImageOps
+    _HAVE_PIL = True
+except ImportError:                       # rebuilds from committed derivatives still work
+    _HAVE_PIL = False
+
 # ---------------------------------------------------------------- sections
 
 class Section:
@@ -106,17 +119,68 @@ def load_intro(section):
     return ""
 
 
+def _slug_stem(name):
+    stem = pathlib.PurePath(name).stem.lower()
+    return re.sub(r"[^a-z0-9]+", "-", stem).strip("-") or "photo"
+
+
+def process_gallery(section):
+    """Optimise originals in media/<slug>/ into media/<slug>/web/ (full + thumb).
+
+    Non-destructive: originals are never modified or moved. A derivative is
+    rebuilt only when it is missing or older than its source.
+    """
+    if not _HAVE_PIL or not section.media_dir.exists():
+        return
+    web = section.media_dir / "web"
+    web.mkdir(exist_ok=True)
+    sources = [p for p in section.media_dir.iterdir()
+               if p.is_file() and p.suffix.lower() in IMAGE_EXTS]
+
+    seen = set()
+    for src in sorted(sources):
+        stem = _slug_stem(src.name)
+        # keep stems unique if two originals slugify the same
+        base, n = stem, 2
+        while stem in seen:
+            stem = f"{base}-{n}"; n += 1
+        seen.add(stem)
+
+        full = web / f"{stem}.jpg"
+        thumb = web / f"{stem}.thumb.jpg"
+        if (full.exists() and thumb.exists()
+                and full.stat().st_mtime >= src.stat().st_mtime
+                and thumb.stat().st_mtime >= src.stat().st_mtime):
+            continue
+        try:
+            im = ImageOps.exif_transpose(Image.open(src))   # bake in rotation
+            im = im.convert("RGB")
+        except Exception as e:                               # skip anything unreadable
+            print(f"  ! skipped {src.name}: {e}")
+            continue
+        for out, cap in ((full, FULL_MAX), (thumb, THUMB_MAX)):
+            w = im.copy()
+            w.thumbnail((cap, cap), Image.LANCZOS)           # ratio-preserving downscale
+            w.save(out, "JPEG", quality=JPEG_QUALITY, optimize=True,
+                   progressive=True)                          # no exif passed -> stripped
+        print(f"  + {src.name}  ->  web/{stem}.jpg (+thumb)")
+
+
 def gallery_images(section):
-    if not section.media_dir.exists():
+    """Return (full_url, thumb_url, caption) for each optimised image, ordered."""
+    web = section.media_dir / "web"
+    if not web.exists():
         return []
-    files = sorted(p for p in section.media_dir.iterdir()
-                   if p.suffix.lower() in IMAGE_EXTS)
+    fulls = sorted(p for p in web.iterdir()
+                   if p.suffix.lower() == ".jpg" and not p.name.endswith(".thumb.jpg"))
     out = []
-    for p in files:
-        # Optional caption: a sidecar .txt with the same stem.
-        cap = p.with_suffix(".txt")
-        caption = cap.read_text(encoding="utf-8").strip() if cap.exists() else ""
-        out.append((f"{IMG_BASE}/{section.slug}/{p.name}", caption))
+    for full in fulls:
+        thumb = full.with_name(full.stem + ".thumb.jpg")
+        thumb_name = thumb.name if thumb.exists() else full.name
+        cap_file = full.with_suffix(".txt")     # optional caption: web/<stem>.txt
+        caption = cap_file.read_text(encoding="utf-8").strip() if cap_file.exists() else ""
+        base = f"{IMG_BASE}/{section.slug}/web"
+        out.append((f"{base}/{full.name}", f"{base}/{thumb_name}", caption))
     return out
 
 # ---------------------------------------------------------------- template
@@ -235,11 +299,11 @@ def build_section(section):
         images = gallery_images(section)
         if images:
             tiles = "".join(
-                f'<button class="shot" data-full="{src}" '
+                f'<button class="shot" data-full="{full}" '
                 f'aria-label="{html.escape(cap or section.title, quote=True)}">'
-                f'<img loading="lazy" src="{src}" alt="{html.escape(cap, quote=True)}">'
+                f'<img loading="lazy" src="{thumb}" alt="{html.escape(cap, quote=True)}">'
                 f'{f"<span>{html.escape(cap)}</span>" if cap else ""}</button>'
-                for src, cap in images)
+                for full, thumb, cap in images)
             content = f'<div class="gallery">{tiles}</div>'
         else:
             content = ('<div class="coming-soon"><p>Photographs are on the way. '
@@ -291,6 +355,11 @@ def build():
     if assets.exists():
         shutil.rmtree(assets)
 
+    # Optimise any newly-dropped gallery originals before rendering.
+    for s in SECTIONS:
+        if s.kind == "gallery":
+            process_gallery(s)
+
     build_home()
     for s in SECTIONS:
         build_section(s)
@@ -300,13 +369,19 @@ def build():
         shutil.copy(STATIC / name, assets / name)
     (assets / "favicon.svg").write_text(FAVICON, encoding="utf-8")
 
-    # Ensure gallery media folders exist so contributors know where photos go.
+    # Ensure gallery media folders exist, and keep originals out of git: only the
+    # optimised web/ derivatives are committed. Originals live on disk (and in
+    # your Dropbox/Drive archive).
     for s in SECTIONS:
         if s.kind == "gallery":
             s.media_dir.mkdir(parents=True, exist_ok=True)
-            keep = s.media_dir / ".gitkeep"
-            if not keep.exists():
-                keep.write_text("", encoding="utf-8")
+            (s.media_dir / ".gitkeep").touch()
+            (s.media_dir / ".gitignore").write_text(
+                "# Drop original photos here; they stay local (originals belong in\n"
+                "# your Dropbox/Drive archive). Only the optimised web/ copies are\n"
+                "# committed and served.\n"
+                "/*\n!/.gitkeep\n!/.gitignore\n!/web/\n",
+                encoding="utf-8")
 
     # GitHub Pages plumbing (root-served user site).
     (ROOT / ".nojekyll").write_text("", encoding="utf-8")
@@ -317,6 +392,8 @@ def build():
     for s in SECTIONS:
         n = len(gallery_images(s)) if s.kind == "gallery" else "—"
         print(f"  {s.slug:24s} {s.kind:9s} images: {n}")
+    if not _HAVE_PIL:
+        print("  (Pillow not installed — gallery originals were not optimised)")
     print(f"  contact: {CONTACT_EMAIL or '(unset)'}   img base: {IMG_BASE}")
 
 

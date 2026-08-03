@@ -1,0 +1,7 @@
+# Drop original photos here; they stay local (originals belong in
+# your Dropbox/Drive archive). Only the optimised web/ copies are
+# committed and served.
+/*
+!/.gitkeep
+!/.gitignore
+!/web/
